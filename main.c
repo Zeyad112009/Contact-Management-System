@@ -78,10 +78,50 @@ void display_contact(){
         printf("[Info] No contacts found.\n");
     }
 }
+//Delete function
+void delete_contact() {
+    FILE *file = fopen("contacts.txt", "r");
+    if (file == NULL) {
+        printf("\n[Info] No contacts found to delete.\n");
+        return;
+    }
+    int delete_choice;
+    display_contact();
+    printf("\n[System] Choose a contact to delete (enter the number): ");
+    scanf("%d", &delete_choice);
+    FILE *temp_file = fopen("temp.txt", "w");
+    if (temp_file == NULL) {
+        printf("[Error] Could not create temporary file.\n");
+        fclose(file);
+        return;
+    }
+    char line[200];
+    char current_line = 1;
+    int found = 0;
+    while (fgets(line, sizeof(line), file)) {
+        if (current_line != delete_choice) {
+            fputs(line, temp_file);
+        } else {
+            found = 1;
+        }
+        current_line++;
+    }
+    fclose(file);
+    fclose(temp_file);
 
-int main(void)
-{
-    int choice;
+    if (found) {
+        remove("contacts.txt");
+        rename("temp.txt", "contacts.txt");
+        printf("\n[Success] Contact deleted successfully!\n");
+    } else {
+        remove("temp.txt");
+        printf("\n[Error] Invalid contact number. No contact deleted.\n");
+    }
+
+    
+}
+int main(void) {
+        int choice;
     while (1) {
         start(&choice);
         switch (choice) {
@@ -92,7 +132,7 @@ int main(void)
                 display_contact();
                 break;
             case 3:
-                printf("\n[System] Delete contact functionality coming soon...\n");
+                delete_contact();
                 break;
             case 4:
                 printf("\n[System] Exiting program. Goodbye!\n");
